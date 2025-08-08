@@ -10,7 +10,7 @@ st.write("This app predicts the sales of a product based on various input featur
 
 st.sidebar.header('Input Product Features')
 
-# --- 1. All input fields, matching model feature order ---
+# All input fields, matching model feature order
 item_identifier = st.sidebar.text_input("Item Identifier", "FDA15")
 item_weight = st.sidebar.slider("Item Weight", 0.0, 25.0, 10.0)
 item_fat_content = st.sidebar.selectbox("Item Fat Content", ["Low Fat", "Regular"])
@@ -30,7 +30,7 @@ outlet_type = st.sidebar.selectbox("Outlet Type", [
     "Grocery Store", "Supermarket Type1", "Supermarket Type2", "Supermarket Type3"
 ])
 
-# --- 2. Simple encoders (update to match your model’s preprocessing if needed) ---
+# Simple encoders for categorical features (adjust these to match your training logic if needed!)
 fat_map = {"Low Fat": 0, "Regular": 1}
 size_map = {"Small": 0, "Medium": 1, "High": 2}
 loc_map = {"Tier 1": 0, "Tier 2": 1, "Tier 3": 2}
@@ -47,7 +47,7 @@ item_type_map = {v: i for i, v in enumerate([
     "Others", "Seafood"
 ])}
 
-# --- 3. Prepare input in the expected order ---
+# Prepare input in the expected order
 input_data = pd.DataFrame([[
     item_identifier,                # String
     item_weight,                    # Float
@@ -66,8 +66,13 @@ input_data = pd.DataFrame([[
     'Outlet_Size', 'Outlet_Location_Type', 'Outlet_Type'
 ])
 
-# --- 4. Predict and display ---
-if st.button("Predict Sales"):
-    prediction = model.predict(input_data)
-    st.success(f"💰 Predicted Sales: ₹ {round(prediction[0], 2)}")
+# Quick label encoding for string IDs (for demo - ideally use the same encoding as during training)
+input_data['Item_Identifier'] = pd.factorize([item_identifier])[0]
+input_data['Outlet_Identifier'] = pd.factorize([outlet_identifier])[0]
 
+# Only keep numeric columns for the model
+input_data_model = input_data.select_dtypes(include=["number"])
+
+if st.button("Predict Sales"):
+    prediction = model.predict(input_data_model)
+    st.success(f"💰 Predicted Sales: ₹ {round(prediction[0], 2)}")
